@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+    app: nginx-deployment # based-on the labels of the Deployment [app : nginx-deployment]
+  ports:
+  - port: 80 # Service's port
+    targetPort: 80 # mapping to container's port
+    protocol: TCP
+    name: http
+  type: LoadBalancer # LoadBalancer mean that allow access from outside the cluster

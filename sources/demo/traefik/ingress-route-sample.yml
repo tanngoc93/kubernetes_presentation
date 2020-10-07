@@ -1,0 +1,60 @@
+# for Ingress document https://doc.traefik.io/traefik/providers/kubernetes-ingress/
+# for IngressRoute document https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/#kind-ingressroute
+# for Middleware document https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/#kind-middleware
+---
+# simple Traefik's IngressRoute
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute 
+metadata:
+  name: ingress-name
+spec:
+  entryPoints:
+    # Traefik's entryPoint with default Helm's values => [web for HTTP, websecure for HTTPS]
+    - web
+    - websecure
+  routes:
+  - match: Host(`domain.com`)
+    kind: Rule
+    services:
+    - name: svc-name # service's name
+      port: 80 # service's port
+---
+# define stripprefix middleware for IngressRoute
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: stripprefix-name
+spec:
+  stripPrefix:
+    prefixes:
+      - /stripit1 # your stripPrefix => domain.com/stripit1
+      - /stripit2 # your stripPrefix => domain.com/stripit2
+---
+# Traefik's IngressRoute with Stripprefix middleware
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ingress-name # ingress name
+spec:
+  entryPoints:
+    # entryPoints's name, default Helm chart configuration
+    # port 80 with --entrypoints.<name> is web
+    # port 443 with --entrypoints.<name> is websecure
+    # https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml#L168
+    - web
+    - websecure
+  routes:
+  - match: Host(`domain.com`) && PathPrefix(`/stripit1`)
+    kind: Rule
+    services:
+    - name: svc-name1 # service's name
+      port: 80 # service's port
+    middlewares:
+    - name: stripprefix # middleware's name as a selector
+  - match: Host(`domain.com`) && PathPrefix(`/stripit2`)
+    kind: Rule
+    services:
+    - name: svc-name2 # service's name
+      port: 80 # service's port
+    middlewares:
+    - name: stripprefix # middleware's name as a selector

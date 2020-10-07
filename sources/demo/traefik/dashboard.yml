@@ -1,0 +1,19 @@
+# dashboard.yaml
+#
+# cmd: kubectl apply -f dashboard.yml
+#
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: dashboard
+spec:
+  entryPoints:
+    - web # for http request
+    - websecure # for https request
+  routes:
+    - match: Host(`dashboard.domain.com`)
+      kind: Rule
+      services:
+        # have to enable Traefik's API service
+        - name: api@internal
+          kind: TraefikService

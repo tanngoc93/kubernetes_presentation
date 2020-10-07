@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    # with Labels and Selectors
+    # please visit https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+    app: nginx-deployment
+spec:
+  replicas: 3 # tell to the Deployment, create for us 3 Pods
+  #
+  # for below comment section
+  # please visit https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#rolling-update-deployment
+  #
+  # strategy:
+  #   type: RollingUpdate
+  #   rollingUpdate:
+  #     maxSurge: 1
+  #     maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: nginx-deployment
+  template:
+    metadata:
+      labels:
+        app: nginx-deployment
+    spec:
+      containers:
+      - name: nginx-deployment
+        image: nginx # docker images
+        ports:
+        - containerPort: 80 # expose the container's port

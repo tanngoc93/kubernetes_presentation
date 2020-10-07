@@ -1,0 +1,83 @@
+#
+# cmd: kubectl apply -f backend-app.yml
+# https://github.com/tanngoc93/efk-backend
+#
+---
+apiVersion: v1
+kind: ConfigMap # cfg env variables to Pods
+metadata:
+  name: backend-cfg
+data:
+  DB_PORT: "db-port"
+  DB_HOST: "db-host"
+  DB_USER: "db-user"
+  DB_PASSWORD: "db-password"
+  DB_FOR_PROD: "db-name-for-production"
+  RAILS_ENV: "production"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+  labels:
+    app: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: tanngoc93/efk-backend:latest
+        # command: yourCMD
+        envFrom:
+        - configMapRef:
+            name: backend-cfg # select ConfigMap's name backend-cfg
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: backend # Select your Deployment by labels
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+  type: ClusterIP
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware # https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/#kind-middleware
+metadata:
+  name: stripprefix
+spec:
+  stripPrefix:
+    prefixes:
+      - /apiservice # domain URL will be `domain.com/apiservice`
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute # https://doc.traefik.io/traefik/routing/providers/kubernetes-crd/#kind-ingressroute
+metadata:
+  name: backend-ingress
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+  - match: Host(`domain.com`) && PathPrefix(`/apiservice`)
+    kind: Rule
+    services:
+    - name: backend-service
+      port: 80
+    middlewares:
+    - name: stripprefix
+  tls:
+    certResolver: certResolverName # refer traefik/custom-values.yml

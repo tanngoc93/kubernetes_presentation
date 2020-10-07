@@ -1,0 +1,18 @@
+# Create Horizontal Pod Autoscaler
+# Set a deployment auto scale if CPU > 50%
+# With min 1 Pod and can scale up max 10 Pods
+#
+kubectl autoscale deployment deployment-name --cpu-percent=50 --min=1 --max=10
+
+# We may check the current status of autoscaler by running:
+#
+kubectl get hpa
+
+# Increase load with 
+# Run a busybox container, and send an infinite loop of queries
+# to the php-apache service (please run it in a different terminal):
+#
+kubectl run -it --rm load-generator --image=busybox /bin/sh
+
+# cmd:
+while true; do wget -q -O- http://php-apache; done

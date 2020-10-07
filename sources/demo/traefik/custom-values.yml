@@ -1,0 +1,69 @@
+# please visit:
+# https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml
+# to know which parameters you can customize
+#
+# about the additionalArguments, please visit:
+# https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml#L143
+#
+# Configure Traefik static configuration
+# Additional arguments to be passed at Traefik's binary
+# All available options available on https://docs.traefik.io/reference/static-configuration/cli/
+#
+################################################################################
+################################################################################
+################################################################################
+#
+# cmd format: helm install [release-name] [name-of-the-chart] [optional]
+#
+# ex: helm install traefik traefik/traefik --values custom-values.yml
+#
+################################################################################
+################################################################################
+################################################################################
+additionalArguments:
+  # static-cfg: --certificatesresolvers.<name>.[*]
+  # with myCert is a name, and defined by the developer
+  #
+  # please visit links below for more infomation
+  # https://doc.traefik.io/traefik/https/acme/#using-letsencrypt-with-kubernetes
+  # https://doc.traefik.io/traefik/https/acme/#the-different-acme-challenges
+  ##################################################################
+  # 5 lines below will sign up for an SSL certificate
+  # and automatically renew it every 90 days with the Let's Encrypt organization
+  ##################################################################
+  - "--certificatesresolvers.myCert.acme.email=tanngoc93@gmail.com"    
+  - "--certificatesresolvers.myCert.acme.storage=/data/acme.json"
+  - "--certificatesresolvers.myCert.acme.httpchallenge=true"
+  - "--certificatesresolvers.myCert.acme.httpchallenge.entrypoint=web"
+  - "--certificatesresolvers.myCert.acme.caserver=https://acme-v02.api.letsencrypt.org/directory"
+  # static-cfg: --entrypoints.<name>.[*]
+  # with <name> is defined by the developers
+  # Traefik helm chart has exposed for us two <name> by default
+  # port 80 with --entrypoints.<name> is web
+  # port 443 with --entrypoints.<name> is websecure
+  #
+  # please visit links below for more infomation
+  # https://doc.traefik.io/traefik/routing/entrypoints/
+  # https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml#L168
+  ##################################################################
+  # 2 lines below will make all domain redirect to https
+  ##################################################################
+  - "--entrypoints.web.http.redirections.entrypoint.to=:443"
+  - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+  # don't care bellow
+  - "--api.dashboard=true"
+  - "--api.insecure=true"
+  - "--accesslog=true"
+  - "--log.level=DEBUG"
+
+
+
+
+
+
+
+
+
+
+
+  

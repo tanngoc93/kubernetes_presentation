@@ -1,0 +1,32 @@
+---
+# simple ingress resource
+apiVersion: networking.k8s.io/v1beta1 # K8s ver 1.6
+kind: Ingress
+metadata:
+  name: nginx-ingress-resource
+spec:
+  backend:
+    serviceName: nginx-service # based-on the name of the Service [nginx-service]
+    servicePort: 80 # mapping to the service's port
+---
+# simple ingress resource with rules
+apiVersion: networking.k8s.io/v1beta1 # K8s ver 1.6
+kind: Ingress
+metadata:
+  name: nginx-ingress-resource-with-rules
+spec:
+  backend:
+    serviceName: front-svc # based-on the name of the Service [frontend-svc]
+    servicePort: 80 # mapping to the service's port
+  rules:
+  - http:
+      paths:
+      - path: "/first"
+        backend:
+          serviceName: first-svc # based-on the name of the Service [first-service]
+          servicePort: 80 # mapping to the service's port
+      - path: "/sencond"
+        backend:
+          serviceName: second-svc # based-on the name of the Service [second-service]
+          servicePort: 80 # mapping to the service's port
+    host: domain.com
