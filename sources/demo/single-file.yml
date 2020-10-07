@@ -4,11 +4,11 @@ kind: ConfigMap # cfg env variables to Pods
 metadata:
   name: backend-cfg
 data:
-  DB_PORT: "5432"
-  DB_HOST: "167.71.99.85"
-  DB_USER: "postgres"
-  DB_PASSWORD: "1qazxsw2"
-  DB_FOR_PROD: "demodb"
+  DB_PORT: "db-port"
+  DB_HOST: "db-host"
+  DB_USER: "db-user"
+  DB_PASSWORD: "db-password"
+  DB_FOR_PROD: "db-name-for-production"
   RAILS_ENV: "production"
 ---
 apiVersion: apps/v1
@@ -55,7 +55,7 @@ kind: ConfigMap # cfg env variables to Pods
 metadata:
   name: frontend-cfg
 data:
-  API_HOST: "http://theguardon.com/apiservice"
+  API_HOST: "http://domain.com/apiservice"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -114,33 +114,33 @@ spec:
     - web # for http request
     - websecure # for https request
   routes:
-  - match: Host(`theguardon.com`) && PathPrefix(`/apiservice`)
+  - match: Host(`domain.com`) && PathPrefix(`/apiservice`)
     kind: Rule
     services:
     - name: backend-service
       port: 80
     middlewares:
     - name: stripprefix
-  - match: Host(`theguardon.com`)
+  - match: Host(`domain.com`)
     kind: Rule
     services:
     - name: frontend-service
       port: 80
-  - match: Host(`monitor.theguardon.com`)
+  - match: Host(`monitor.domain.com`)
     kind: Rule
     services:
     - name: api@internal
       kind: TraefikService
-  # - match: Host(`grafana.theguardon.com`)
-  #   kind: Rule
-  #   services:
-  #   - name: "#changehere"
-  #     port: "#changehere"
-  # - match: Host(`kibana.theguardon.com`)
-  #   kind: Rule
-  #   services:
-  #   - name: "#changehere"
-  #     port: "#changehere"
+  - match: Host(`grafana.domain.com`)
+    kind: Rule
+    services:
+    - name: "#changehere"
+      port: "#changehere"
+  - match: Host(`kibana.domain.com`)
+    kind: Rule
+    services:
+    - name: "#changehere"
+      port: "#changehere"
   tls:
     certResolver: certResolverName # refer traefik/custom-values.yml
 
